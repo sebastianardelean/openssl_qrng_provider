@@ -6,6 +6,8 @@ and https://github.com/openssl/openssl/blob/master/test/testutil/fake_random.c
 AND documentation https://docs.openssl.org/3.0/man7/provider/#operations
 https://github.com/openssl/openssl/issues/16784
 
+Example RNG provider: https://docs.openssl.org/3.0/man7/provider-base/#examples
+
  */
 
 #include <stdio.h>
