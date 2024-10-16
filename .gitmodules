@@ -1,0 +1,3 @@
+[submodule "lib/libqrng"]
+	path = lib/libqrng
+	url = https://github.com/sebastianardelean/libqrng

@@ -9,7 +9,9 @@
 #include <openssl/evp.h>
 #include <openssl/types.h>
 #include <malloc.h>
-#include <qrng.h>
+#include <stdint.h>
+
+
 
 static const OSSL_ITEM reason_strings[] = {
     {0,NULL}
@@ -138,10 +140,14 @@ static int qrng_generate(void *vrng,
 {
     printf("qrng_generate\n");
     struct qrng_ctx_st *ctx = (struct qrng_ctx_st *)vrng;
+   
+    
     size_t i = 0;
     for (i = 0; i < outlen; i++) {
-        out[i] = (unsigned char)(rand() % 256);
+        out[i] = (unsigned char)(rand()%256);
+        printf("%d ", out[i]);
     }
+    
     return 1;
 }
 
@@ -299,7 +305,7 @@ static const OSSL_DISPATCH qrng_functions[] = {
 };
 
 static const OSSL_ALGORITHM qrng_rand[] = {
-    {"CTR-DRBG", "provider='qrng'", qrng_functions},
+    {"CTR-DRBG", "provider='qrngprov'", qrng_functions},
     {NULL, NULL, NULL}
 };
 

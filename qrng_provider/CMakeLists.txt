@@ -16,14 +16,18 @@ endif()
 
 
 
-
 set(qrng_source qrng.c)
-add_library(libqrng SHARED ${qrng_source})
-set_target_properties(libqrng PROPERTIES
+
+add_library(qrngprov SHARED ${qrng_source})
+
+
+set_target_properties(qrngprov PROPERTIES
   POSITION_INDEPENDENT_CODE ON
-  OUTPUT_NAME "qrng")
-target_include_directories(libqrng PUBLIC include)
-target_include_directories(libqrng PRIVATE ${OPENSSL_INCLUDE_DIR}) 
+  OUTPUT_NAME "qrngprov")
+target_include_directories(qrngprov PUBLIC include)
+target_include_directories(qrngprov PRIVATE ${OPENSSL_INCLUDE_DIR})
+
+
 
 # Testing
 get_property(_is_multiconfig GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
