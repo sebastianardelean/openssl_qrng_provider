@@ -6,17 +6,17 @@
 
 1. Build and install the libqrng library. Detailed instructions are presented in the [README](https://github.com/sebastianardelean/libqrng)
 2. In qrng_rand_data directory run the following commands
-   a. `mkdir build`
-   b. `cd build`
-   c. `cmake ..`
-   d. `make`
-   e. Run the executable in background: `./qrng_daemon &`
+   + `mkdir build`
+   + `cd build`
+   + `cmake ..`
+   + `make`
+   + Run the executable in background: `./qrng_daemon &`
 4. In qrng_provider directory run the following commands:
-   a. `mkdir build`
-   b. `cd build`
-   c. `cmake ..`
-   d. `make`
-   e. `mv libqrngprov.so qrngprov.so`
+   + `mkdir build`
+   + `cd build`
+   + `cmake ..`
+   + `make`
+   + `mv libqrngprov.so qrngprov.so`
 5. Run `openssl version -d` and copy the `openssl.cnf` into the location shown by the `openssl version -d` command. Example: `cp openssl.cnf /usr/lib/ssl/openssl.cnf`. Modify the module path from `[qrngprov_sec]` to point to the location of the qrngprov.so file. **BE AWARE: IT IS RECOMMENDED TO CREATE A BACKUP COPY OF THE ORIGINAL CONFIGURATION FILE FROM THE LOCATION POINTED BY THE OPENSSL COMMAND!**
 
 ### Use the qrng provider with openssl 3.0
