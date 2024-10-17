@@ -8,14 +8,19 @@ project(qrng_daemon VERSION 1.0)
 set(CMAKE_C_STANDARD 99)
 set(CMAKE_C_STANDARD_REQUIRED True)
 
+if (NOT OPENSSL_FOUND)
+  find_package(OpenSSL 3.0 REQUIRED)
+endif() 
+
+
 # Add the producer executable
-add_executable(qrng_daemon qrng_daemon.c)
+add_executable(qrng_daemon main.c)
 
-# Add any additional compile options or flags if necessary
-# For example: set extra warnings or optimization
-# target_compile_options(producer PRIVATE -Wall -Wextra -O2)
 
-# Include directories (if required)
+
+target_compile_options(qrng_daemon PRIVATE -Wall -Wextra -O2)
+
+
 include_directories(/usr/local/include)
 
 # Find the library in a known path

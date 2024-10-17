@@ -2,7 +2,11 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <unistd.h>
 #include <assert.h>
+#include <fcntl.h>
+#include <sys/stat.h>
+#include <sys/file.h>
 #include <openssl/core_names.h>
 #include <openssl/rand.h>
 #include <openssl/provider.h>
@@ -11,6 +15,39 @@
 #include <malloc.h>
 #include <stdint.h>
 
+#define FILE_PATH "/tmp/datafile.bin"
+
+
+
+
+static void request_numbers(size_t numbers, unsigned char *values) {
+    memset(values, 0, numbers);
+    int fd = open(FILE_PATH,O_RDWR);
+
+    if (fd == -1) {
+        return;
+    }
+    struct stat st;
+    
+    do {
+        flock(fd, LOCK_EX);
+        if (stat(FILE_PATH,&st) == -1) {
+            break;
+        }
+        if (st.st_size > 0 && st.st_size > (numbers*sizeof(unsigned char))) {
+            read(fd, values, numbers * sizeof(unsigned char));
+
+            off_t new_size = st.st_size - (numbers * sizeof(unsigned char));
+            if (new_size < 0 ) {
+                new_size = 0;
+            }else {
+                ftruncate(fd,new_size);
+            }
+        }
+        flock(fd, LOCK_UN);
+        usleep(1000);
+    }while(st.st_size < numbers * sizeof(unsigned char));
+}
 
 
 static const OSSL_ITEM reason_strings[] = {
@@ -141,13 +178,14 @@ static int qrng_generate(void *vrng,
     printf("qrng_generate\n");
     struct qrng_ctx_st *ctx = (struct qrng_ctx_st *)vrng;
    
-    
+    request_numbers(outlen, out);
+    /*
     size_t i = 0;
     for (i = 0; i < outlen; i++) {
         out[i] = (unsigned char)(rand()%256);
         printf("%d ", out[i]);
     }
-    
+    */
     return 1;
 }
 

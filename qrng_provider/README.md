@@ -35,3 +35,18 @@ find_package(CURL REQUIRED)
 target_link_libraries(qrngprov PRIVATE CURL::libcurl)
 
 ```
+
+
+openssl list -providers
+openssl genpkey -algorithm RSA -out private_key.pem -pkeyopt rsa_keygen_bits:2048 -provider qrngprov
+
+https://adfinis.com/en/blog/openssl-x509-certificates/
+
+Certificates:
+
+openssl genpkey -algorithm RSA -out random.cs.upt.ro.key -pkeyopt rsa_keygen_bits:4096 -provider qrngprov
+
+openssl req -new -sha256 -key random.cs.upt.ro.key -out random.cs.upt.ro.csr -provider qrngprov
+
+
+openssl req -x509 -sha256 -nodes -newkey rsa:4096 -keyout random.cs.upt.ro.key -days 730 -out random.cs.upt.ro.pem -provider qrngprov
