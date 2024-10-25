@@ -17,7 +17,7 @@
 
 #define FILE_PATH "/tmp/datafile.bin"
 
-#define DEBUG 1
+
 #ifdef DEBUG
 #define debug_print(fmt, ...) \
     do { if (DEBUG) fprintf(stderr, "%s:%d:%s(): " fmt "%s", __FILE__, \
