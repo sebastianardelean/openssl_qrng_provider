@@ -17,7 +17,16 @@
 
 #define FILE_PATH "/tmp/datafile.bin"
 
+#define DEBUG 1
+#ifdef DEBUG
+#define debug_print(fmt, ...) \
+    do { if (DEBUG) fprintf(stderr, "%s:%d:%s(): " fmt "%s", __FILE__, \
+                            __LINE__, __func__, ##__VA_ARGS__, ""); } while (0)
 
+
+#else
+#define debug_print(fmt, ...)
+#endif
 
 
 static void request_numbers(size_t numbers, unsigned char *values) {
@@ -128,7 +137,7 @@ struct qrng_ctx_st {
 static void *qrng_newctx(void *provctx, void *parent,
                          const OSSL_DISPATCH *parent_dispatch)
 {
-    printf("qrng_newctx\n");
+    debug_print("entered\n");
     struct qrng_ctx_st *ctx = malloc(sizeof(*ctx));
     if (ctx != NULL) {
         memset(ctx, 0, sizeof(*ctx));
@@ -139,7 +148,7 @@ static void *qrng_newctx(void *provctx, void *parent,
 
 static void qrng_freectx(void *vrng)
 {
-    printf("qrng_freectx\n");
+    debug_print("entered\n");
     struct qrng_ctx_st *ctx = (struct qrng_ctx_st *)vrng;
     if (ctx != NULL) {
         free(ctx);
@@ -153,7 +162,7 @@ static int qrng_instantiate(void *vrng,
                             size_t pstr_len,
                             ossl_unused const OSSL_PARAM params[])
 {
-    printf("qrng_instantiate\n");
+    debug_print("entered\n");
     struct qrng_ctx_st *ctx = (struct qrng_ctx_st *)vrng;
     ctx->state = EVP_RAND_STATE_READY;
     return 1;
@@ -161,7 +170,7 @@ static int qrng_instantiate(void *vrng,
 
 static int qrng_uninstantiate(void *vrng)
 {
-    printf("qrng_uninstantiate\n");
+    debug_print("entered\n");
     struct qrng_ctx_st *ctx = (struct qrng_ctx_st *)vrng;
     ctx->state = EVP_RAND_STATE_UNINITIALISED;
     return 1;
@@ -175,7 +184,7 @@ static int qrng_generate(void *vrng,
                          const unsigned char *addin,
                          size_t addinlen)
 {
-    printf("qrng_generate\n");
+    debug_print("entered\n");
     struct qrng_ctx_st *ctx = (struct qrng_ctx_st *)vrng;
    
     request_numbers(outlen, out);
@@ -196,7 +205,7 @@ static int qrng_reseed(void *vrng,
                        const unsigned char *addin,
                        size_t addin_len)
 {
-    printf("qrng_reseed\n");
+    debug_print("entered\n");
     return 1;
 }
 
@@ -208,7 +217,7 @@ static size_t qrng_nonce(void *ctx,
                          long unsigned int max_noncelen
                          )
 {
-    printf("qrng_nonce\n");
+    debug_print("entered\n");
     return 1;
 }
 
@@ -217,19 +226,19 @@ static size_t qrng_get_seed(void *ctx, unsigned char **buffer,
                                int prediction_resistance,
                                const unsigned char *adin, size_t adin_len)
 {
-    printf("qrng_get_seed\n");
+    debug_print("entered\n");
     return 1;
 }
 
 static void qrng_clear_seed(void *ctx, unsigned char *buffer, size_t b_len)
 {
-    printf("qrng_clear_seed\n");
+    debug_print("entered\n");
     
 }
 
 static int qrng_verify_zeroization(void *ctx)
 {
-    printf("qrng_verify_zeroization\n");
+    debug_print("entered\n");
     return 1;
 }
 
@@ -237,19 +246,19 @@ static int qrng_verify_zeroization(void *ctx)
 
 static int qrng_enable_locking(void *ctx)
 {
-    printf("qrng_enable_locking\n");
+    debug_print("entered\n");
     return 1;
 }
 
 
 static int qrng_lock(void *ctx)
 {
-    printf("qrng_lock\n");
+    debug_print("entered\n");
     return 1;
 }
 static void qrng_unlock(void *ctx)
 {
-    printf("qrng_unlock\n");
+    debug_print("entered\n");
 }
 
 static const OSSL_PARAM *qrng_gettable_params(void *provctx)
@@ -262,7 +271,7 @@ static const OSSL_PARAM *qrng_gettable_params(void *provctx)
 
 static const OSSL_PARAM *qrng_gettable_ctx_params(void *ctx, void *provctx)
 {
-    printf("qrng_gettable_ctx_params\n");
+    debug_print("entered\n");
     static const OSSL_PARAM known_gettable_ctx_params[] = {
         OSSL_PARAM_int(OSSL_RAND_PARAM_STATE, NULL),
         OSSL_PARAM_uint(OSSL_RAND_PARAM_STRENGTH, NULL),
@@ -282,13 +291,13 @@ static const OSSL_PARAM *qrng_settable_ctx_params(void *ctx, void *provctx){
 
 static int qrng_get_params(OSSL_PARAM params[])
 {
-    printf("qrng_get_params\n");  
+    debug_print("entered\n");
     return 1;
 }
 
 static int qrng_get_ctx_params(void *ctx, OSSL_PARAM params[])
 {
-    printf("qrng_get_ctx_params\n");
+    debug_print("entered\n");
     struct qrng_ctx_st *pctx = (struct qrng_ctx_st *)ctx;
     OSSL_PARAM *p;
     
@@ -309,7 +318,7 @@ static int qrng_get_ctx_params(void *ctx, OSSL_PARAM params[])
 
 static int qrng_set_ctx_params(void *ctx, const OSSL_PARAM params[])
 {
-    printf("qrng_set_ctx_params\n");
+    debug_print("entered\n");
     return 1;
 }
 
@@ -351,18 +360,18 @@ static const OSSL_ALGORITHM *qrng_prov_query(void *vprovctx,
                                         int operation_id,
                                         int *no_cache)
 {
-    printf("qrng_prov_query %d\n",operation_id);
+    debug_print("entered with operation id %d\n", operation_id);
     switch(operation_id)
     {
     case OSSL_OP_CIPHER:
     {
-        printf("\tIn OSSL_OP_CIPHER\n");
+        debug_print("OSSL_OP_CIPHER\n");   
         return qrng_rand;
     }
         
     case OSSL_OP_RAND:
     {
-        printf("\tIn OSSL_OP_RAND\n");
+        debug_print("OSSL_OP_RAND\n");
         return qrng_rand;
     }
     }
@@ -371,19 +380,19 @@ static const OSSL_ALGORITHM *qrng_prov_query(void *vprovctx,
 
 static const OSSL_ITEM *qrng_prov_get_reasons(void *provctx)
 {
-    printf("qrng_prov_get_reasons\n");
+    debug_print("entered\n");
     return reason_strings;
 }
 
 static int qrng_prov_get_params(void *provctx, OSSL_PARAM *params)
 {
-    printf("qrng_prov_get_params\n");
+    debug_print("entered\n");
     return 1;
 }
 
 static void qrng_prov_teardown(void *provctx)
 {
-    printf("qrng_prov_teardown\n");
+    debug_print("entered\n");
     provider_ctx_free(provctx);
 }
 
@@ -400,7 +409,7 @@ int OSSL_provider_init(const OSSL_CORE_HANDLE *core,
                        const OSSL_DISPATCH **out,
                        void **vprovctx)
 {
-    printf("OSSL_provider_init\n");
+    debug_print("entered\n");
     if ((*vprovctx = provider_ctx_new(core,in)) == NULL) {
         return 0;
     }
