@@ -42,7 +42,19 @@ static void write_random_data(int fd, size_t batch_size)
 
 int main(int argc, char **argv)
 {
+    (void)argc;
+    (void)argv;
     int retval = 0;
+
+    int nochdir = 0;
+    int noclose = 0;
+
+    //create the good demon
+
+    if (daemon(nochdir, noclose)) {
+        perror("No daemon was conjured! :(");
+        exit(EXIT_FAILURE);
+    }
 
     int fd = open(FILE_PATH, O_WRONLY | O_CREAT | O_APPEND, 0666);
     if (fd == -1) {
@@ -76,7 +88,7 @@ int main(int argc, char **argv)
             if (batch_size > MAX_CHUNK_SIZE) {
                 write_random_data(fd, MAX_CHUNK_SIZE);
             }else {
-            //   printf("GENERATING...\n");
+         
                 write_random_data(fd,batch_size);
             }
         }

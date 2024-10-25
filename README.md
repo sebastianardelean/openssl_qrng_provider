@@ -28,3 +28,36 @@
 5. Create X509 certificate: `openssl req -x509 -sha256 -nodes -newkey rsa:4096 -keyout example.com.key -days 730 -out example.com.pem -provider qrngprov`
 
 ## Software Architecture
+
+```
+@startuml
+package "OpenSSL QRNG Provider" {
+  OSSL- [libqrngprov]
+
+}
+
+
+
+cloud {
+  [IDQ's Quantis Appliance]
+}
+
+
+database "Random Numbers pool" {
+  folder "/tmp" {
+    [datafile.bin]
+  }
+  
+}
+
+
+[qrng_provider] --> [libqrng]
+[libqrng] --> [qrng_provider]
+[libqrng] --> [IDQ's Quantis Appliance]
+[IDQ's Quantis Appliance] --> [libqrng]
+[qrng_provider] --> [Random Numbers pool]
+[Random Numbers pool] -->[OpenSSL QRNG Provider]
+
+@enduml
+
+```
