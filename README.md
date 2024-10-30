@@ -2,6 +2,22 @@
 
 ## Getting started
 
+### Dependencies
+
+1. gcc
+2. libc
+3. Make
+4. CMake
+5. libcurl-dev
+6. bison
+7. flex
+8. libssl-dev
+
+On Debian based distros, you can run the following command to install all the dependencies:
+```
+sudo apt update && apt install --no-install-recommends -y libcurl4-openssl-dev curl build-essential gcc libssl-dev cmake bison flex
+```
+
 ### Build and Install
 
 1. Build and install the libqrng library. Detailed instructions are presented in the [README](https://github.com/sebastianardelean/libqrng)
