@@ -1,0 +1,11 @@
+# accepted suffixes KB,MB,GB
+pool_file_size = 1GB
+max_chunk_size = 4KB
+
+
+#domain address
+domain_address = random.cs.upt.ro
+
+#rng values. negative values can be accepted, as long as those are in int32 interval
+min_rng_value = 1
+max_rng_value = 255

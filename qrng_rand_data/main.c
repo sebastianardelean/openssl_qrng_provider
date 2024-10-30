@@ -18,6 +18,11 @@
 #define DEFAULT_MAX_VALUE_I 255
 
 
+/*Let hardcoded only the File Path. Everything else shall be in a configuration file.
+  int /etc/qrand/qrand.conf
+ */
+
+
 static void write_random_data(int fd, size_t batch_size)
 {
     int32_t *data = malloc(batch_size * sizeof(int32_t));
