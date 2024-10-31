@@ -62,3 +62,9 @@ endif()
 # Find libcurl
 find_package(CURL REQUIRED)
 target_link_libraries(qrng_daemon PRIVATE CURL::libcurl)
+
+
+
+# Installation
+install(TARGETS qrng_daemon DESTINATION /usr/bin)
+install(FILES qrng.cnf DESTINATION /usr/lib/qrng)  # Creates /usr/lib/qrng and installs qrng.cnf
