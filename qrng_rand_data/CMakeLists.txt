@@ -2,7 +2,7 @@
 cmake_minimum_required(VERSION 3.20)
 
 # Project name and version
-project(qrng_daemon VERSION 1.0)
+project(qrngd VERSION 1.0)
 
 # Set the C standard to C99 (or C11 if preferred)
 set(CMAKE_C_STANDARD 99)
@@ -37,11 +37,12 @@ ADD_FLEX_BISON_DEPENDENCY(Scanner Parser)
 
 
 # Add the producer executable
-add_executable(qrng_daemon main.c file.c cfg_read.c ${BISON_OUTPUT_FILE} ${FLEX_OUTPUT_FILE})
+add_executable(qrngd main.c file.c cfg_read.c ${BISON_OUTPUT_FILE} ${FLEX_OUTPUT_FILE})
 
 
 
-target_compile_options(qrng_daemon PRIVATE -Wall -Wextra -O2)
+#target_compile_options(qrngd PRIVATE -Wall -Wextra -O2)
+target_compile_options(qrngd PRIVATE -Wall -Wextra -g)
 
 
 include_directories(
@@ -54,17 +55,17 @@ find_library(QRNG_LIBRARY NAMES qrng PATHS /usr/local/lib)
 
 # Check if the library was found and link it
 if(QRNG_LIBRARY)
-  target_link_libraries(qrng_daemon PRIVATE ${QRNG_LIBRARY})
+  target_link_libraries(qrngd PRIVATE ${QRNG_LIBRARY})
 else()
   message(FATAL_ERROR "libqrng not found!")
 endif()
 
 # Find libcurl
 find_package(CURL REQUIRED)
-target_link_libraries(qrng_daemon PRIVATE CURL::libcurl)
+target_link_libraries(qrngd PRIVATE CURL::libcurl)
 
 
 
 # Installation
-install(TARGETS qrng_daemon DESTINATION /usr/bin)
+install(TARGETS qrngd DESTINATION /usr/bin)
 install(FILES qrng.cnf DESTINATION /usr/lib/qrng)  # Creates /usr/lib/qrng and installs qrng.cnf

@@ -7,7 +7,10 @@
 #include <sys/stat.h>
 #include <sys/file.h>
 #include <syslog.h>
-#include <qrng.h>
+#include <dlfcn.h>
+
+
+
 #include "cfg_read.h"
 
 
@@ -19,6 +22,10 @@
 static int32_t rng_min_value = 0;
 static int32_t rng_max_value = 255;
 
+static int (*qrng_open)(const char *);
+static int (*qrng_rand_int32)(int32_t, int32_t, size_t, int32_t *);
+static void (*qrng_close)(void);
+
 
 
 
@@ -26,7 +33,7 @@ static void write_random_data(int fd, size_t batch_size)
 {
     int32_t *data = malloc(batch_size * sizeof(int32_t));
     if (data) {
-        if (qrng_random_int32(rng_min_value, rng_max_value, batch_size, data) == 0) {
+        if ((*qrng_rand_int32)(rng_min_value, rng_max_value, batch_size, data) == 0) {
             //print the value to stdout
             write(fd, data, batch_size);
         }
@@ -48,6 +55,9 @@ int main(int argc, char **argv)
 {
     (void)argc;
     (void)argv;
+
+    void *handle_qrng_provider = NULL;
+    
     int retval = 0;
 
     int nochdir = 0;
@@ -57,17 +67,17 @@ int main(int argc, char **argv)
     size_t pool_size = 0;
     size_t chunk_size = 0;
  
-    char domain[256] = {0};
-
+    char rng_module[256] = {0};
+    char *dlerrorstr = NULL;
     openlog(LOG_NAME, LOG_PID | LOG_NOWAIT, LOG_USER);
     
 
-
+/*
     if (daemon(nochdir, noclose)) {
         syslog(LOG_CRIT, "No daemon was conjured! :(");
         exit(EXIT_FAILURE);
     }
-
+*/
     syslog(LOG_INFO, "Daemon conjured successfully!");
     int fd = open(FILE_PATH, O_WRONLY | O_CREAT | O_APPEND, 0666);
     if (fd == -1) {
@@ -94,17 +104,57 @@ int main(int argc, char **argv)
     // read configurations
     cfg_read_pool_size(&pool_size);
     cfg_read_chunk_size(&chunk_size);
-    cfg_read_domain_address(domain);
+    cfg_read_rng_module(rng_module);
     cfg_read_min_rng_value(&rng_min_value);
     cfg_read_max_rng_value(&rng_max_value);
 
     syslog(LOG_INFO, "Finished reading configurations!");
+
+    handle_qrng_provider = dlopen("/usr/local/lib/libqrng.so", RTLD_NOW | RTLD_GLOBAL);
+    if (handle_qrng_provider == NULL) {
+        syslog(LOG_CRIT, "Poor daemon cannot load the qrng provider: %s", dlerror());
+        close(fd);
+        closelog();
+        exit(EXIT_FAILURE);
+    }
+
+    dlerror(); /* Clear any existing error */
+
+    *(void **)(&qrng_open) = dlsym(handle_qrng_provider, "qrng_open");
     
-    retval = qrng_open(domain);
+    if ((dlerrorstr = dlerror()) != NULL) {
+        syslog(LOG_CRIT,"Poor daemon has problems with dlsym: %s", dlerrorstr);
+        close(fd);
+        closelog();
+        dlclose(handle_qrng_provider);
+        exit(EXIT_FAILURE);
+    }
+
+    *(void **)(&qrng_rand_int32) = dlsym(handle_qrng_provider, "qrng_random_int32");
+    if ((dlerrorstr = dlerror()) != NULL) {
+        syslog(LOG_CRIT,"Poor daemon has problems with dlsym: %s", dlerrorstr);
+        close(fd);
+        closelog();
+        dlclose(handle_qrng_provider);
+        exit(EXIT_FAILURE);
+    }
+     
+    *(void **)(&qrng_close) = dlsym(handle_qrng_provider, "qrng_close");
+    if ((dlerrorstr = dlerror()) != NULL) {
+        syslog(LOG_CRIT,"Poor daemon has problems with dlsym: %s", dlerrorstr);
+        close(fd);
+        closelog();
+        dlclose(handle_qrng_provider);
+        exit(EXIT_FAILURE);
+    }  
+    syslog(LOG_INFO, "Finished initializing handlers!");
+    
+    retval = (*qrng_open)("random.cs.upt.ro");//TODO: Hardcoded for now
     if (retval) {
         syslog(LOG_CRIT,"QRNG init failed");
         close(fd);
         closelog();
+        dlclose(handle_qrng_provider);
         exit(EXIT_FAILURE);
     }
 
@@ -142,8 +192,8 @@ int main(int argc, char **argv)
    
     closelog();
     close(fd);
-    qrng_close();
-    
+    (*qrng_close)();
+    dlclose(handle_qrng_provider);
 
     exit(EXIT_SUCCESS);
 }
