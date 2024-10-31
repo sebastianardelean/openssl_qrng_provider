@@ -2,8 +2,8 @@
 #define CFG_READ_H
 
 
-void cfg_read_init(void);
-void cfg_read_run(void);
+int cfg_read_init(void);
+int cfg_read_run(void);
 
 
 void cfg_read_domain_address(char *domain_address);

@@ -37,7 +37,7 @@ ADD_FLEX_BISON_DEPENDENCY(Scanner Parser)
 
 
 # Add the producer executable
-add_executable(qrng_daemon main.c log.c utils.c cfg_read.c ${BISON_OUTPUT_FILE} ${FLEX_OUTPUT_FILE})
+add_executable(qrng_daemon main.c file.c cfg_read.c ${BISON_OUTPUT_FILE} ${FLEX_OUTPUT_FILE})
 
 
 

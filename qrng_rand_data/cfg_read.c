@@ -5,7 +5,7 @@
 #include <unistd.h>
 #include <string.h>
 
-#include "utils.h"
+#include "file.h"
 #include "config.tab.h"
 #include "cfg_read.h"
 
@@ -16,9 +16,9 @@
 static  config_t config;
 
 static const char cfg_file_path[]= "/usr/lib/qrng/qrng.cnf";
-static const char cfg_dir_path[] = "/usr/lib/qrng";
 
-static const char cfg_file_default[]="qrng.cnf";
+
+
 
 
 
@@ -30,20 +30,21 @@ void yyerror(config_t *parm, const char *s) {
 
 
 
-void cfg_read_init(void)
+int cfg_read_init(void)
 {
-    create_directory_if_missing(cfg_dir_path);
+
     if (check_file_exists(cfg_file_path, false) == false) {
-        //create default configuration
-        if(copy_file(cfg_file_default, cfg_file_path) == -1) {
-            //TODO: we have an error
-        }
+        return -1;
+
+    } else {
+        memset(&config, 0, sizeof(config_t));
     }
-    memset(&config, 0, sizeof(config_t));
+
+    return 0;
     
 }
 
-void cfg_read_run(void)
+int cfg_read_run(void)
 {
     FILE *fcfg = fopen(cfg_file_path, "rb");
     char *buffer = 0;
@@ -54,22 +55,28 @@ void cfg_read_run(void)
         fseek(fcfg,0, SEEK_END);
         cfg_file_size = ftell (fcfg);
         fseek (fcfg, 0, SEEK_SET);
+
         buffer = malloc(cfg_file_size);
-        if (buffer)
-        {
+
+        if (buffer) {
             fread (buffer, 1, cfg_file_size, fcfg);
+            (void)yy_scan_string(buffer);
+            (void)yyparse(&config);
+            
         }
         else {
-            fprintf(stderr, "Could not allocate memory for the config file content");
             fclose(fcfg);
+            return -1;
         }
     }
-    if (buffer) {
-        (void)yy_scan_string(buffer);
-
-        (void)yyparse(&config);
-        yylex_destroy();
+    else {
+        return -1;
     }
+    
+    yylex_destroy();
+    fclose(fcfg);
+    free(buffer);
+    return 0;
 }
 
 void cfg_read_domain_address(char *domain_address)

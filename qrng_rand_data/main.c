@@ -6,6 +6,7 @@
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <sys/file.h>
+#include <syslog.h>
 #include <qrng.h>
 #include "cfg_read.h"
 
@@ -13,9 +14,12 @@
 
 #define FILE_PATH "/tmp/datafile.bin"
 
+#define LOG_NAME "qrng"
 
 static int32_t rng_min_value = 0;
 static int32_t rng_max_value = 255;
+
+
 
 
 static void write_random_data(int fd, size_t batch_size)
@@ -28,7 +32,7 @@ static void write_random_data(int fd, size_t batch_size)
         }
     }
     else {
-        perror("Error on alloc");
+        syslog(LOG_ERR, "Error on alloc");
         return;
     }
 
@@ -54,23 +58,38 @@ int main(int argc, char **argv)
     size_t chunk_size = 0;
  
     char domain[256] = {0};
+
+    openlog(LOG_NAME, LOG_PID | LOG_NOWAIT, LOG_USER);
     
-    //create the good demon
+
 
     if (daemon(nochdir, noclose)) {
-        perror("No daemon was conjured! :(");
+        syslog(LOG_CRIT, "No daemon was conjured! :(");
         exit(EXIT_FAILURE);
     }
 
+    syslog(LOG_INFO, "Daemon conjured successfully!");
     int fd = open(FILE_PATH, O_WRONLY | O_CREAT | O_APPEND, 0666);
     if (fd == -1) {
-        perror("Failed to open file");
+        syslog(LOG_CRIT, "The daemon has no power. It couldn't open the file descriptor.");
+        closelog();
         exit(EXIT_FAILURE);
     }
 
+    syslog(LOG_INFO, "Created pool fd successfully!");
+    
     // init read configurations
-    cfg_read_init();
-    cfg_read_run();
+    if (cfg_read_init() == -1) {
+        syslog(LOG_CRIT, "The daemon doesn't know his powers. The configurations cannot be read!");
+        closelog();
+        exit(EXIT_FAILURE);
+    }
+    
+    if (cfg_read_run() == -1) {
+        syslog(LOG_CRIT, "The daemon doesn't know how to read. The configurations are malformed!");
+        closelog();
+        exit(EXIT_FAILURE);
+    }
 
     // read configurations
     cfg_read_pool_size(&pool_size);
@@ -79,13 +98,17 @@ int main(int argc, char **argv)
     cfg_read_min_rng_value(&rng_min_value);
     cfg_read_max_rng_value(&rng_max_value);
 
+    syslog(LOG_INFO, "Finished reading configurations!");
     
     retval = qrng_open(domain);
     if (retval) {
-        perror("QRNG init failed");
+        syslog(LOG_CRIT,"QRNG init failed");
+        close(fd);
+        closelog();
         exit(EXIT_FAILURE);
     }
 
+    syslog(LOG_INFO, "Daemon connected to QRNG!");
     
     while(1) {
         struct stat st;
@@ -94,7 +117,8 @@ int main(int argc, char **argv)
 
         // Get current file size
         if (stat(FILE_PATH, &st) == -1) {
-            perror("Failed to get file stats");
+            
+            syslog(LOG_WARNING, "Failed to get file stats");
             break;
         }
 
@@ -116,7 +140,7 @@ int main(int argc, char **argv)
         usleep(1000);
     }
    
-
+    closelog();
     close(fd);
     qrng_close();
     
