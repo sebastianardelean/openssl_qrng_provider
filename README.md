@@ -26,7 +26,8 @@ sudo apt update && apt install --no-install-recommends -y libcurl4-openssl-dev c
    + `cd build`
    + `cmake ..`
    + `make`
-   + Run the executable in background: `./qrng_daemon &`
+   + `make install`: This command should build copy the executable in /usr/bin/ and the configurarion file `qrng.cnf` in `/usr/lib/qrng/`.
+   + Run the executable: `qrng_daemon`
 4. In qrng_provider directory run the following commands:
    + `mkdir build`
    + `cd build`
