@@ -14,8 +14,6 @@ endif()
 
 
 
-
-
 # Locate Bison and Flex
 find_package(BISON REQUIRED)
 find_package(FLEX REQUIRED)
@@ -68,4 +66,4 @@ target_link_libraries(qrngd PRIVATE CURL::libcurl)
 
 # Installation
 install(TARGETS qrngd DESTINATION /usr/bin)
-install(FILES qrng.cnf DESTINATION /usr/lib/qrng)  # Creates /usr/lib/qrng and installs qrng.cnf
+install(FILES qrngd.cnf DESTINATION /usr/lib/qrng)  # Creates /usr/lib/qrng and installs qrngd.cnf

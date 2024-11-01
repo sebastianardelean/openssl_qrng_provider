@@ -17,7 +17,7 @@
 
 #define FILE_PATH "/tmp/datafile.bin"
 
-#define LOG_NAME "qrng"
+#define LOG_NAME "qrngd"
 
 static int32_t rng_min_value = 0;
 static int32_t rng_max_value = 255;
