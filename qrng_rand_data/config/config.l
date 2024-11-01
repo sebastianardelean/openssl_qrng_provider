@@ -16,12 +16,12 @@
 "GB"               { return GB; }
 "pool_file_size"   { return POOL_FILE_SIZE; }
 "max_chunk_size"   { return MAX_CHUNK_SIZE; }
-"domain_address"   { return DOMAIN_ADDRESS; }
+"rng_module"       { return RNG_MODULE; }
 "min_rng_value"    { return MIN_RNG_VALUE; }
 "max_rng_value"    { return MAX_RNG_VALUE; }
 "="                { return EQUALS; }
 [0-9]+             { yylval.ival = atoi(yytext); return INTEGER; }
-[a-zA-Z_.]+     { strcpy(yylval.sval, yytext); return STRING; }
+[a-zA-Z_./]+     { strcpy(yylval.sval, yytext); return STRING; }
 %%
 
 

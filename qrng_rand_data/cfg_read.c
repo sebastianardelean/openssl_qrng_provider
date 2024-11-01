@@ -10,7 +10,7 @@
 #include "cfg_read.h"
 
 
-#define DOMAIN_ADDRESS_MAX_SIZE 256
+#define RNG_MODULE_NAME_MAX_SIZE 256
 
 
 static  config_t config;
@@ -79,9 +79,9 @@ int cfg_read_run(void)
     return 0;
 }
 
-void cfg_read_domain_address(char *domain_address)
+void cfg_read_rng_module(char *rng_module)
 {
-    strncpy(domain_address, config.domain_address,DOMAIN_ADDRESS_MAX_SIZE);
+    strncpy(rng_module, config.rng_module,RNG_MODULE_NAME_MAX_SIZE);
 }
 
 void cfg_read_pool_size(size_t *pool_size)

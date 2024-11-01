@@ -4,7 +4,7 @@ max_chunk_size = 4KB
 
 
 # domain address
-domain_address = random.cs.upt.ro
+rng_module = /usr/local/lib/libqrng.so
 
 # rng values. negative values can be accepted
 min_rng_value = 1
