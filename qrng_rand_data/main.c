@@ -72,12 +72,12 @@ int main(int argc, char **argv)
     openlog(LOG_NAME, LOG_PID | LOG_NOWAIT, LOG_USER);
     
 
-/*
+
     if (daemon(nochdir, noclose)) {
         syslog(LOG_CRIT, "No daemon was conjured! :(");
         exit(EXIT_FAILURE);
     }
-*/
+
     syslog(LOG_INFO, "Daemon conjured successfully!");
     int fd = open(FILE_PATH, O_WRONLY | O_CREAT | O_APPEND, 0666);
     if (fd == -1) {
@@ -88,7 +88,7 @@ int main(int argc, char **argv)
 
     syslog(LOG_INFO, "Created pool fd successfully!");
     
-    // init read configurations
+
     if (cfg_read_init() == -1) {
         syslog(LOG_CRIT, "The daemon doesn't know his powers. The configurations cannot be read!");
         closelog();
@@ -113,6 +113,7 @@ int main(int argc, char **argv)
     handle_qrng_provider = dlopen("/usr/local/lib/libqrng.so", RTLD_NOW | RTLD_GLOBAL);
     if (handle_qrng_provider == NULL) {
         syslog(LOG_CRIT, "Poor daemon cannot load the qrng provider: %s", dlerror());
+
         close(fd);
         closelog();
         exit(EXIT_FAILURE);
