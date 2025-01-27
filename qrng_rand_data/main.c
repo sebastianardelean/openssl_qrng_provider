@@ -69,7 +69,7 @@ int main(int argc, char **argv)
  
     char rng_module[256] = {0};
     char *dlerrorstr = NULL;
-    openlog(LOG_NAME, LOG_PID | LOG_NOWAIT, LOG_USER);
+    openlog(LOG_NAME, LOG_PID | LOG_NOWAIT | LOG_NDELAY, LOG_DAEMON);
     
 
 
@@ -110,7 +110,7 @@ int main(int argc, char **argv)
 
     syslog(LOG_INFO, "Finished reading configurations!");
 
-    handle_qrng_provider = dlopen("/usr/local/lib/libqrng.so", RTLD_NOW | RTLD_GLOBAL);
+    handle_qrng_provider = dlopen(rng_module, RTLD_NOW | RTLD_GLOBAL);
     if (handle_qrng_provider == NULL) {
         syslog(LOG_CRIT, "Poor daemon cannot load the qrng provider: %s", dlerror());
 

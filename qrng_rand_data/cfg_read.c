@@ -15,7 +15,7 @@
 
 static  config_t config;
 
-static const char cfg_file_path[]= "/usr/lib/qrng/qrng.cnf";
+static const char cfg_file_path[]= "/usr/lib/qrng/qrngd.cnf";
 
 
 
