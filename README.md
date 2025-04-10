@@ -1,4 +1,4 @@
-# openssl qrng provider
+# OpenSSL qrng provider
 
 ## Getting started
 
